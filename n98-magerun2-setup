@@ -1,0 +1,45 @@
+#!/bin/bash
+
+echo "Setting up n98-magerun2 command for DDEV..."
+
+# Navigate to the root directory
+cd "$(dirname "$0")" || { echo "Failed to change directory to the script's location"; exit 1; }
+
+# Ensure .ddev/commands/web directory exists
+mkdir -p .ddev/commands/web
+
+# Navigate to the bin directory
+cd bin || { echo "Failed to change directory to bin"; exit 1; }
+
+# Download n98-magerun2.phar
+wget https://files.magerun.net/n98-magerun2.phar
+
+# Rename n98-magerun2.phar to n98-magerun2
+mv n98-magerun2.phar n98-magerun2
+
+# Navigate back to the root directory
+cd ..
+
+# Create the n98-magerun2 file with the provided content
+cat << 'EOF' > .ddev/commands/web/n98-magerun2
+#!/bin/bash
+
+## Description: Run n98-magerun2 CLI inside the web container
+## Usage: n98-magerun2 [flags] [args]
+## Example: "ddev n98-magerun2 list" or "ddev n98-magerun2 maintenance:enable" or "ddev n98-magerun2 sampledata:reset"
+
+if [ ! -f bin/n98-magerun2 ]; then
+  echo 'bin/n98-magerun2 does not exist.'
+  echo 'Please verify that you installed n98-magerun2 under <project-root>/bin directory.'
+  exit 1
+fi
+
+php bin/n98-magerun2 "$@"
+EOF
+
+# Make the script executable
+chmod +x .ddev/commands/web/n98-magerun2
+
+echo "ddev n98-magerun2 command has been set up successfully."
+echo "Run 'ddev start' to apply the changes."
+echo "Then you can use 'ddev n98-magerun2' to run n98-magerun2 commands inside the web container."
