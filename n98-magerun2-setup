@@ -6,16 +6,23 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}Setting up n98-magerun2 command for DDEV...${NC}"
+printf "${GREEN}Setting up n98-magerun2 command for DDEV...${NC}\n"
 
-# Navigate to the root directory
-cd "$(dirname "$0")" || { echo -e "${RED}Failed to change directory to the script's location${NC}"; exit 1; }
+# Check if ddev n98-magerun2 is already installed
+if [ -f .ddev/commands/web/n98-magerun2 ]; then
+  printf "${RED}ddev n98-magerun2 is already installed. Aborting installation.${NC}\n"
+  exit 1
+fi
 
-# Ensure .ddev/commands/web directory exists
-mkdir -p .ddev/commands/web
+# Determine the bin directory location
+if [ -d src ]; then
+  BIN_DIR="src/bin"
+else
+  BIN_DIR="bin"
+fi
 
 # Navigate to the bin directory
-cd bin || { echo -e "${RED}Failed to change directory to bin${NC}"; exit 1; }
+cd "$BIN_DIR" || { printf "${RED}Failed to change directory to $BIN_DIR${NC}\n"; exit 1; }
 
 # Download n98-magerun2.phar
 wget https://files.magerun.net/n98-magerun2.phar
@@ -24,7 +31,10 @@ wget https://files.magerun.net/n98-magerun2.phar
 mv n98-magerun2.phar n98-magerun2
 
 # Navigate back to the root directory
-cd ..
+cd - || { printf "${RED}Failed to change back to the root directory${NC}\n"; exit 1; }
+
+# Ensure .ddev/commands/web directory exists
+mkdir -p .ddev/commands/web
 
 # Create the n98-magerun2 file with the provided content
 cat << 'EOF' > .ddev/commands/web/n98-magerun2
@@ -46,6 +56,6 @@ EOF
 # Make the script executable
 chmod +x .ddev/commands/web/n98-magerun2
 
-echo -e "${GREEN}ddev n98-magerun2 command has been set up successfully.${NC}"
-echo -e "${YELLOW}Run 'ddev start' to apply the changes.${NC}"
-echo -e "${YELLOW}Then you can use 'ddev n98-magerun2' to run n98-magerun2 commands inside the web container.${NC}"
+printf "${GREEN}ddev n98-magerun2 command has been set up successfully.${NC}\n"
+printf "${YELLOW}Run 'ddev start' to apply the changes.${NC}\n"
+printf "${YELLOW}Then you can use 'ddev n98-magerun2' to run n98-magerun2 commands inside the web container.${NC}\n"
